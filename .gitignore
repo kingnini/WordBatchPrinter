@@ -1,0 +1,44 @@
+# VBA/Office 相关文件
+*.tmp
+*.temp
+~$*
+*.xlk
+*.pdb
+
+# 日志文件
+log/
+*.log
+*.txt
+
+# 备份文件
+*.bak
+*.backup
+*~
+
+# 系统文件
+Thumbs.db
+Desktop.ini
+.DS_Store
+*/.DS_Store
+
+# IDE/编辑器文件
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 运行时生成的文件
+*.exe
+*.dll
+*.so
+*.dylib
+
+# 测试文档
+test_docs/
+sample_docs/
+*.test.*
+
+# 用户配置文件
+config.ini
+settings.ini
+user_settings.*
