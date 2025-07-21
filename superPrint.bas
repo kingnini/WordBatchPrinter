@@ -93,7 +93,11 @@ Sub singleWordDocPrint(pDoc As Document, pStepTime As Byte, pStepPrintNum As Byt
     On Error GoTo ErrorHandler ' 添加错误处理
     
     Dim thisDoc As Document
-    Dim totalPages As Long '当前文档总页数
+    Dim sec As Section
+    Dim totalPages As Long '文档总页数
+    Dim startPage As Integer '文档起始页
+    Dim endPage As Integer '文档结束页
+    Dim totalPrintPages As Long '总打印页数
     Dim startPrintPage As Integer '当前打印起始页
     Dim endPrintPage As Integer '当前打印结束页
     Dim stepPrintNum As Byte '每次打印页数
@@ -102,10 +106,11 @@ Sub singleWordDocPrint(pDoc As Document, pStepTime As Byte, pStepPrintNum As Byt
     Dim logMessage  As String
 
     Set thisDoc = pDoc
+    Set sec = thisDoc.Sections(1)
     logMessage = ""
     totalPages = thisDoc.ComputeStatistics(wdStatisticPages)
-    startPrintPage = 0
-    endPrintPage = 0
+    startPage = sec.Footers(wdHeaderFooterPrimary).PageNumbers.StartingNumber
+    endPage = startPage + totalPages
     stepTime = pStepTime
     stepPrintNum = pStepPrintNum
     
@@ -113,15 +118,15 @@ Sub singleWordDocPrint(pDoc As Document, pStepTime As Byte, pStepPrintNum As Byt
     Application.ScreenUpdating = False
     thisDoc.Activate
     
+    startPrintPage = startPage
+    endPrintPage = startPrintPage + stepPrintNum - 1
+    totalPrintPages = totalPages
     Do
-        startPrintPage = endPrintPage + 1
-        endPrintPage = startPrintPage + stepPrintNum - 1
-        
-        If endPrintPage > totalPages Then
-            endPrintPage = totalPages
+        If endPrintPage > endPage Then
+            endPrintPage = endPage
         End If
         
-        thisDoc.ActiveWindow.PrintOut Range:=wdPrintFromTo, From:=CStr(startPrintPage), To:=CStr(endPrintPage)
+        'thisDoc.ActiveWindow.PrintOut Range:=wdPrintFromTo, From:=CStr(startPrintPage), To:=CStr(endPrintPage)
         logMessage = Format(Now, "yyyy-mm-dd hh:mm:ss") & "    " & Replace(thisDoc.FullName, thisDoc.Path, "") & ":" & CStr(startPrintPage) & " - " & CStr(endPrintPage) & "  （共" & CStr(totalPages) & "页)"
         
         Application.StatusBar = "Printing: " & logMessage
@@ -137,8 +142,10 @@ Sub singleWordDocPrint(pDoc As Document, pStepTime As Byte, pStepPrintNum As Byt
             If FreeFile > 255 Then Close
         Loop
         
-    Loop While (endPrintPage < totalPages)
-    ' 新增内存清理
+        startPrintPage = startPrintPage + stepPrintNum
+        endPrintPage = startPrintPage + stepPrintNum - 1
+    Loop While (startPrintPage <= endPage)
+
     Application.ScreenUpdating = True
     Set thisDoc = Nothing
     DoEvents
